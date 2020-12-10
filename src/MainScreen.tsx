@@ -1,4 +1,3 @@
-// MainScreen.js
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, View, FlatList} from 'react-native';
 import {List, Title} from 'react-native-paper';
@@ -34,11 +33,11 @@ const sample_memos = [
 
 export const MainScreen = () => {
   const navigation = useNavigation();
-  const [memos, setMemos] = useState([]); // (1)
+  const [memos, setMemos] = useState([]);
 
   useEffect(() => {
     const initialize = async () => {
-      const newMemos = await loadAll(); // (2)
+      const newMemos = await loadAll();
       setMemos(newMemos);
     };
 
@@ -48,9 +47,9 @@ export const MainScreen = () => {
   }, [navigation]);
 
   const onPressAdd = () => {
-    navigation.navigate('Compose'); // (3)
+    navigation.navigate('Compose');
   };
-
+  console.log('memos is {}', memos);
   return (
     <View style={styles.container}>
       <FlatList
@@ -61,19 +60,21 @@ export const MainScreen = () => {
           <List.Item
             title={item.text}
             titleNumberOfLines={5}
-            description={
-              `作成日時: ${format(item.createdAt, 'yyyy.MM.dd(EEE) HH:mm')}` // (2)
-            }
-            descriptionStyle={{textAlign: 'right'}} // (1)
+            description={`作成日時: ${format(
+              item.createdAt,
+              'yyyy.MM.dd(EEE) HH:mm',
+            )}`}
+            descriptionStyle={{textAlign: 'right'}}
+            onPress={() => navigation.navigate('Contents', item)}
           />
         )}
       />
       <FAB
         style={{
-          // (2)
           position: 'absolute',
           right: 16,
           bottom: 16,
+          backgroundColor: 'blue',
         }}
         icon="plus"
         onPress={onPressAdd}

@@ -3,14 +3,14 @@ import {View, StyleSheet} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 
-import {save} from './store';
+import {add} from './store';
 
 export const ComposeScreen = () => {
   const [text, setText] = useState('');
   const navigation = useNavigation();
 
   const onPressSave = async () => {
-    await save(text, Date.now());
+    await add(text, Date.now());
     navigation.goBack();
   };
 
