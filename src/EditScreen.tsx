@@ -3,15 +3,18 @@ import {View, StyleSheet} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 
-import {add, update} from './store';
+import {update} from './store';
 
-export const ComposeScreen = () => {
-  const [text, setText] = useState('');
-  const navigation = useNavigation();
+export const EditScreen = ({route, navigation}) => {
+  const item = route.params;
+  const [text, setText] = useState(item.text);
+
+  console.log('edit is ' + item.text + ' and ' + item.createdTime);
+  console.log('edit (JSON) is ' + JSON.stringify(item));
 
   const onPressSave = async () => {
-    await add(text, Date.now());
-    navigation.goBack();
+    await update(text, item.createdTime, Date.now());
+    navigation.navigate('Main');
   };
 
   return (
@@ -19,9 +22,10 @@ export const ComposeScreen = () => {
       <TextInput
         style={{marginBottom: 16}}
         mode="outlined"
-        placeholder="メモを入力してください"
+        placeholder={item.text}
         multiline
         onChangeText={(text) => setText(text)}
+        defaultValue={item.text}
       />
       <Button mode="contained" onPress={onPressSave}>
         保存

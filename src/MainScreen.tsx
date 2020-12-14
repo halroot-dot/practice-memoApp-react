@@ -1,39 +1,17 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, View, FlatList} from 'react-native';
-import {List, Title} from 'react-native-paper';
-import {Item} from 'react-native-paper/lib/typescript/src/components/List/List';
+import {List} from 'react-native-paper';
+
 import format from 'date-fns/format';
 import {FAB} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 
 import {loadAll} from './store';
 
-const sample_memos = [
-  {
-    text: 'メモメモメモ',
-    createdAt: 1585574700000, // 2020.03.30 22:25
-  },
-  {
-    text: 'メモメモメモ',
-    createdAt: 1585567500000, // 2020.03.30 20:25
-  },
-  {
-    text: '長いメモメモメモメモメモメモメモメモメモメモメモメモメモメモ',
-    createdAt: 1585459500000, // 2020.03.29 14:25
-  },
-  {
-    text: 'メモメモメモ',
-    createdAt: 1585369500000, // 2020.03.28 13:25
-  },
-  {
-    text: 'メモメモメモ',
-    createdAt: 1585275900000, // 2020.03.27 11:25
-  },
-];
-
 export const MainScreen = () => {
   const navigation = useNavigation();
   const [memos, setMemos] = useState([]);
+  const [sortState, setSortState] = useState(true);
 
   useEffect(() => {
     const initialize = async () => {
@@ -49,35 +27,46 @@ export const MainScreen = () => {
   const onPressAdd = () => {
     navigation.navigate('Compose');
   };
+  const onPressToggleSort = () => {
+    setSortState(!sortState);
+  };
+
   console.log('memos is {}', memos);
+
   return (
     <View style={styles.container}>
       <FlatList
         style={styles.list}
-        data={memos}
-        keyExtractor={(item) => `${item.createdAt}`}
+        data={memos.sort(function (a, b) {
+          const cal = sortState
+            ? a.createdTime - b.createdTime
+            : a.updatedTime - b.updatedTime;
+          if (cal > 0) {
+            return 1;
+          } else {
+            return -1;
+          }
+        })}
+        keyExtractor={(item) => `${item.createdTime}`}
         renderItem={({item}) => (
           <List.Item
             title={item.text}
             titleNumberOfLines={5}
             description={`作成日時: ${format(
-              item.createdAt,
-              'yyyy.MM.dd(EEE) HH:mm',
-            )}`}
+              item.createdTime,
+              'yyyy.MM.dd HH:mm',
+            )}
+              更新日時: ${format(item.updatedTime, 'yyyy.MM.dd HH:mm')}`}
             descriptionStyle={{textAlign: 'right'}}
             onPress={() => navigation.navigate('Contents', item)}
           />
         )}
       />
+      <FAB style={styles.floatButton} icon="plus" onPress={onPressAdd} />
       <FAB
-        style={{
-          position: 'absolute',
-          right: 16,
-          bottom: 16,
-          backgroundColor: 'blue',
-        }}
-        icon="plus"
-        onPress={onPressAdd}
+        style={styles.sortButton}
+        icon={sortState ? 'clock-time-four-outline' : 'clock-time-four'}
+        onPress={onPressToggleSort}
       />
     </View>
   );
@@ -89,5 +78,17 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+  },
+  floatButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    backgroundColor: 'rgb(60, 116, 247)',
+  },
+  sortButton: {
+    position: 'absolute',
+    right: 80,
+    bottom: 16,
+    backgroundColor: 'black',
   },
 });
