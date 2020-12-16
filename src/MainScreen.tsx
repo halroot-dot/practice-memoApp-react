@@ -8,18 +8,28 @@ import {useNavigation} from '@react-navigation/native';
 
 import {loadAll} from './store';
 
+type item = {
+  text: string;
+  createdTime: number;
+  updatedTime: number;
+};
+
 export const MainScreen = () => {
   const navigation = useNavigation();
-  const [memos, setMemos] = useState([]);
+  const [memos, setMemos] = useState<item[]>([]);
+  const [memosExtra, setMemosExtra] = useState(true);
   const [sortState, setSortState] = useState(true);
 
   useEffect(() => {
     const initialize = async () => {
       const newMemos = await loadAll();
       setMemos(newMemos);
+      console.log('newMemos is {}', newMemos);
     };
 
     const unsubscribe = navigation.addListener('focus', initialize);
+
+    console.log('render useeffect navigation');
 
     return unsubscribe;
   }, [navigation]);
@@ -27,26 +37,37 @@ export const MainScreen = () => {
   const onPressAdd = () => {
     navigation.navigate('Compose');
   };
+
   const onPressToggleSort = () => {
     setSortState(!sortState);
   };
 
+  useEffect(() => {
+    const sortCreatedTime = (e: item[]) => {
+      return e.sort((a, b) => a.createdTime - b.createdTime);
+    };
+
+    const sortUpdatedTime = (e: item[]) => {
+      return e.sort((a, b) => a.updatedTime - b.updatedTime);
+    };
+
+    setMemosExtra(!memosExtra);
+
+    sortState
+      ? setMemos(sortCreatedTime(memos))
+      : setMemos(sortUpdatedTime(memos));
+    return;
+  }, [sortState, memos]);
+
   console.log('memos is {}', memos);
+  console.log('sortState is {}', sortState);
 
   return (
     <View style={styles.container}>
       <FlatList
         style={styles.list}
-        data={memos.sort(function (a, b) {
-          const cal = sortState
-            ? a.createdTime - b.createdTime
-            : a.updatedTime - b.updatedTime;
-          if (cal > 0) {
-            return 1;
-          } else {
-            return -1;
-          }
-        })}
+        data={memos}
+        extraData={memosExtra}
         keyExtractor={(item) => `${item.createdTime}`}
         renderItem={({item}) => (
           <List.Item
@@ -65,7 +86,7 @@ export const MainScreen = () => {
       <FAB style={styles.floatButton} icon="plus" onPress={onPressAdd} />
       <FAB
         style={styles.sortButton}
-        icon={sortState ? 'clock-time-four-outline' : 'clock-time-four'}
+        icon={sortState ? 'clock-time-four-outline' : 'minus'}
         onPress={onPressToggleSort}
       />
     </View>
