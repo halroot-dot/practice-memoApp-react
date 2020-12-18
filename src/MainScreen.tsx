@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useLayoutEffect} from 'react';
 import {StyleSheet, View, FlatList} from 'react-native';
 import {List} from 'react-native-paper';
 
@@ -14,13 +14,31 @@ type item = {
   updatedTime: number;
 };
 
+const sampleData = [
+  {
+    createdTime: 1608025299238,
+    updatedTime: 1608025337229,
+    text: 'first-(forth edit)',
+  },
+  {
+    createdTime: 1608025307205,
+    updatedTime: 1608025307205,
+    text: 'second',
+  },
+  {
+    createdTime: 1608025316463,
+    updatedTime: 1608025316463,
+    text: 'third',
+  },
+];
+
 export const MainScreen = () => {
   const navigation = useNavigation();
   const [memos, setMemos] = useState<item[]>([]);
   const [memosExtra, setMemosExtra] = useState(true);
   const [sortState, setSortState] = useState(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const initialize = async () => {
       const newMemos = await loadAll();
       setMemos(newMemos);
